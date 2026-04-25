@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>📅 ตารางนัดหมาย</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#ff4d8d;--pink2:#ff85b3;--pink-l:#fff0f5;
+  --orange:#ff6b2b;--orange-l:#fff3ee;
+  --yellow:#ffc200;--yellow-l:#fffbea;
+  --green:#00c98a;--green2:#34d9a5;--green-l:#edfff8;
+  --blue:#2979ff;--blue2:#64a8ff;--blue-l:#eef4ff;
+  --purple:#8b5cf6;--purple-l:#f5f0ff;
+  --red:#f43f5e;
+  --ink:#1e1b2e;--ink2:#4b4869;--ink3:#9896b0;
+  --bg:#f8f6ff;--white:#fff;
+  --border:#e8e4f0;
+  --r:18px;--r2:12px;
+  --sh:0 2px 16px rgba(139,92,246,.08);
+  --sh2:0 8px 32px rgba(139,92,246,.15);
+}
+body{font-family:"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 0%,rgba(255,77,141,.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 100%,rgba(41,121,255,.07) 0%,transparent 50%);}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:linear-gradient(135deg,#6c3fff 0%,#ff4d8d 50%,#ff6b2b 100%);
+  padding:0 28px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:200;box-shadow:0 4px 24px rgba(108,63,255,.35);
+}
+.tb-brand{display:flex;align-items:center;gap:12px}
+.tb-ico{width:42px;height:42px;background:rgba(255,255,255,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;backdrop-filter:blur(8px)}
+.tb-name{font-family:"Kanit",sans-serif;font-weight:800;font-size:1.05rem;color:#fff;line-height:1.2}
+.tb-sub{font-size:.72rem;color:rgba(255,255,255,.75);margin-top:1px}
+.tb-kpi{display:flex;gap:6px}
+.kp{background:rgba(255,255,255,.18);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:7px;font-size:.8rem;color:#fff;font-weight:600}
+.kp-n{font-family:"Kanit",sans-serif;font-size:1.05rem;font-weight:800}
+.tb-btns{display:flex;gap:8px;align-items:center}
+.tbtn{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:7px 15px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;backdrop-filter:blur(8px)}
+.tbtn:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.tbtn.solid{background:#fff;color:var(--purple);border-color:#fff;font-weight:800}
+.tbtn.solid:hover{background:#f5f0ff}
+
+/* ── LAYOUT ── */
+.app{max-width:1480px;margin:0 auto;padding:22px 20px;display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+.main{display:flex;flex-direction:column;gap:18px}
+.side{display:flex;flex-direction:column;gap:16px}
+
+/* ── CARD ── */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);border:1.5px solid var(--border)}
+.ch{padding:16px 20px 12px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border)}
+.ch-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ch-title{font-family:"Kanit",sans-serif;font-weight:700;font-size:.95rem;color:var(--ink);flex:1}
+.cb{padding:14px 20px 20px}
+
+/* ── TODAY PANEL ── */
+.today-panel{background:var(--white);border-radius:var(--r);box-shadow:var(--sh2);border:1.5px solid var(--border);overflow:hidden}
+.today-top{
+  background:linear-gradient(135deg,#6c3fff,#ff4d8d);
+  padding:18px 22px;display:flex;align-items:center;justify-content:space-between;
+}
+.today-title{display:flex;align-items:center;gap:10px;font-family:"Kanit",sans-serif;font-weight:800;font-size:1.05rem;color:#fff}
+.live-dot{width:10px;height:10px;background:#4fffb0;border-radius:50%;animation:blink 1.4s ease infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.today-date{font-size:.85rem;color:rgba(255,255,255,.85);font-weight:600}
+.today-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px}
+
+/* ── EVENT CARD ── */
+.ev{border-radius:14px;padding:14px 16px;border-left:6px solid var(--blue);background:var(--blue-l);display:grid;grid-template-columns:100px 1fr auto;gap:12px;align-items:center;transition:.15s}
+.ev:hover{transform:translateX(3px);box-shadow:var(--sh)}
+.ev.c-blue  {background:var(--blue-l);border-left-color:var(--blue)}
+.ev.c-pink  {background:var(--pink-l);border-left-color:var(--pink)}
+.ev.c-green {background:var(--green-l);border-left-color:var(--green)}
+.ev.c-orange{background:var(--orange-l);border-left-color:var(--orange)}
+.ev.c-purple{background:var(--purple-l);border-left-color:var(--purple)}
+.ev.c-yellow{background:var(--yellow-l);border-left-color:var(--yellow)}
+.ev.past{opacity:.5}
+.ev-time{font-family:"Kanit",sans-serif;font-size:1rem;font-weight:700;color:var(--ink);line-height:1.55;white-space:nowrap}
+.ev-name{font-weight:800;font-size:clamp(.95rem,1.2vw,1.2rem);color:var(--ink);line-height:1.3}
+.ev-sub{font-size:.8rem;color:var(--ink2);margin-top:3px;font-weight:500}
+.ev-badges{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.ev-empty{text-align:center;padding:28px;color:var(--ink3);font-size:.9rem}
+
+/* ── TOMORROW PANEL ── */
+.tmr-panel{background:var(--yellow-l);border:1.5px solid #ffe066;border-radius:var(--r);box-shadow:var(--sh)}
+.tmr-top{background:linear-gradient(135deg,#ffc200,#ff9f00);padding:14px 18px;border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0;display:flex;align-items:center;gap:10px}
+.tmr-title{font-family:"Kanit",sans-serif;font-weight:800;font-size:.95rem;color:#3a2000}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:24px}
+.tl-line{position:absolute;left:10px;top:4px;bottom:4px;width:3px;background:linear-gradient(180deg,#ff4d8d,#2979ff);border-radius:3px}
+.tl-item{position:relative;margin-bottom:12px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-27px;top:14px;width:14px;height:14px;border-radius:50%;background:var(--blue);border:3px solid var(--white);box-shadow:0 0 0 2px var(--blue)}
+.tl-dot.live{background:var(--green);box-shadow:0 0 0 3px rgba(0,201,138,.25);animation:blink 1.6s ease infinite}
+.tl-dot.past{background:#c8c5d8;box-shadow:0 0 0 2px #c8c5d8}
+.tl-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;transition:.15s}
+.tl-card:hover{border-color:var(--purple);box-shadow:var(--sh2);transform:translateX(4px)}
+.tl-card.live{border-color:var(--green);background:var(--green-l)}
+.tl-card.past{opacity:.5}
+.tl-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:7px}
+.tl-name{font-weight:800;font-size:.95rem;color:var(--ink);flex:1;line-height:1.4}
+.tl-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.tl-meta{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:.8rem;color:var(--ink2);font-weight:500}
+.tl-notes{margin-top:5px;font-size:.79rem;color:var(--ink3)}
+.tl-acts{display:flex;gap:6px;margin-top:8px}
+.day-chip{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--purple-l),var(--blue-l));color:var(--purple);font-size:.78rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:10px;margin-top:4px;border:1.5px solid rgba(139,92,246,.2)}
+.day-chip.today{background:linear-gradient(135deg,var(--pink-l),var(--orange-l));color:var(--pink);border-color:rgba(255,77,141,.2)}
+
+/* ── BADGES ── */
+.bdg{display:inline-block;font-size:.76rem;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.bm{background:#2979ff;color:#fff}
+.ba{background:#00c98a;color:#fff}
+.bn{background:#8b5cf6;color:#fff}
+.bu{background:#ff6b2b;color:#fff}
+.bl{background:#00c98a;color:#fff}
+.bv{display:inline-block;font-size:.76rem;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap}
+
+/* ── FILTER BAR ── */
+.fbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--white);border-radius:var(--r);border:1.5px solid var(--border);padding:12px 16px;box-shadow:var(--sh)}
+.fbar input,.fbar select{border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font:inherit;font-size:.86rem;background:#faf8ff;color:var(--ink);transition:.15s}
+.fbar input:focus,.fbar select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.1)}
+.fbar input{flex:1;min-width:180px}
+.vtgl{display:flex;gap:3px;background:#f0ecff;border-radius:11px;padding:3px}
+.vbtn{border:none;background:transparent;border-radius:9px;padding:7px 13px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--ink3);transition:.15s}
+.vbtn.on{background:var(--white);color:var(--purple);box-shadow:var(--sh)}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow:auto;border-radius:var(--r);border:1.5px solid var(--border);background:var(--white)}
+table{width:100%;border-collapse:collapse;min-width:820px}
+th{background:linear-gradient(135deg,#f5f0ff,#eef4ff);padding:11px 13px;text-align:left;font-size:.75rem;font-weight:800;letter-spacing:.05em;color:var(--ink3);text-transform:uppercase;border-bottom:1.5px solid var(--border);position:sticky;top:0;z-index:1}
+td{padding:12px 13px;border-bottom:1px solid #f0ecf8;font-size:.86rem;vertical-align:middle;color:var(--ink)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#faf8ff}
+tr.rl td{background:var(--green-l)}
+
+/* ── GROUP BUTTONS ── */
+.grp-btn{display:flex;align-items:center;justify-content:space-between;margin:8px 14px 0;border-radius:999px;padding:12px 18px;font:inherit;font-size:.88rem;font-weight:800;border:none;cursor:pointer;transition:.15s;width:calc(100% - 28px);color:#fff}
+.grp-btn:last-child{margin-bottom:14px}
+.grp-btn:hover{transform:translateX(4px);filter:brightness(1.1)}
+.gc0{background:linear-gradient(135deg,#ff4d8d,#ff2266);box-shadow:0 4px 14px rgba(255,77,141,.35)}
+.gc1{background:linear-gradient(135deg,#2979ff,#0055e9);box-shadow:0 4px 14px rgba(41,121,255,.35)}
+.gc2{background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 4px 14px rgba(139,92,246,.35)}
+.gc3{background:linear-gradient(135deg,#00c98a,#009966);box-shadow:0 4px 14px rgba(0,201,138,.35)}
+.gc4{background:linear-gradient(135deg,#ff6b2b,#e04e00);box-shadow:0 4px 14px rgba(255,107,43,.35)}
+.grp-panel{background:var(--pink-l);border-color:#ffc0d6}
+
+/* ── MINI CAL ── */
+.cal-wrap{padding:14px 16px}
+.cal-title{text-align:center;font-family:"Kanit",sans-serif;font-weight:800;font-size:1rem;color:var(--ink);margin-bottom:12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;width:100%}
+.cal-h{font-size:.7rem;font-weight:800;color:var(--purple);padding:4px 0}
+.cal-d{font-size:.82rem;font-weight:600;padding:6px 2px;border-radius:8px;cursor:pointer;color:var(--ink2);transition:.15s;line-height:1;min-width:0}
+.cal-d:hover{background:var(--pink-l);color:var(--pink)}
+.cal-d.td{background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;font-weight:900;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:0 auto;padding:0}
+.cal-d.sun{color:var(--red)}
+.cal-d.hev::after{content:"";display:block;width:4px;height:4px;background:var(--pink);border-radius:50%;margin:0 auto}
+.cal-d.empty{visibility:hidden}
+.cal-panel{background:var(--white)}
+
+/* ── FORM / MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(30,27,46,.55);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fi .2s ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:22px;box-shadow:0 32px 80px rgba(139,92,246,.25);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:su .2s ease;border:1.5px solid var(--border)}
+@keyframes su{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.mh{background:linear-gradient(135deg,var(--purple-l),var(--pink-l));padding:18px 22px 14px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mt{font-family:"Kanit",sans-serif;font-weight:800;font-size:1.05rem;color:var(--ink);display:flex;align-items:center;gap:8px}
+.mc{background:rgba(139,92,246,.1);border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;color:var(--purple);transition:.15s}
+.mc:hover{background:rgba(139,92,246,.2)}
+.mb{padding:16px 22px 22px}
+.fw{display:flex;flex-direction:column;gap:11px}
+.fr{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.ff label{display:block;font-size:.72rem;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.ff input,.ff select,.ff textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;font:inherit;font-size:.88rem;background:#faf8ff;color:var(--ink);transition:.15s}
+.ff input:focus,.ff select:focus,.ff textarea:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.1);background:#fff}
+.ff textarea{min-height:70px;resize:vertical}
+.brow{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:9px 16px;font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn-p{background:linear-gradient(135deg,var(--purple),#6d28d9);color:#fff;box-shadow:0 3px 10px rgba(139,92,246,.35)}
+.btn-g{background:linear-gradient(135deg,var(--green),#009966);color:#fff;box-shadow:0 3px 10px rgba(0,201,138,.3)}
+.btn-r{background:var(--red);color:#fff}
+.btn-ghost{background:#f0ecff;color:var(--purple)}
+.btn-sm{padding:5px 10px;font-size:.78rem;border-radius:8px}
+.sess-box{background:var(--blue-l);border:1.5px solid #c0d8ff;border-radius:11px;padding:10px 13px;font-size:.83rem;margin-top:10px;color:var(--ink);line-height:1.6}
+.notice{background:var(--yellow-l);border:1.5px solid #ffe066;border-radius:11px;padding:10px 13px;font-size:.78rem;color:#6a4800;margin-top:10px}
+.sa-chip{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#ffc200,#ff9f00);color:#3a2000;border-radius:999px;padding:3px 12px;font-size:.76rem;font-weight:900}
+
+/* ── SHEET PANEL ── */
+.sheet-box{background:var(--green-l);border:1.5px solid #a0e8c8;border-radius:12px;padding:13px 14px;margin-top:12px}
+.sheet-title{font-size:.8rem;font-weight:800;color:#1a7a50;margin-bottom:8px}
+.step-tabs{display:flex;gap:4px;margin-bottom:10px}
+.stab{flex:1;padding:6px;border-radius:8px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer;transition:.15s;border:1.5px solid #a0e8c8;background:#fff;color:#1a7a50}
+.stab.on{background:#00a86b;border-color:#00a86b;color:#fff}
+
+/* ── MISC ── */
+.hidden{display:none!important}
+.empty{text-align:center;padding:28px;color:var(--ink3);font-size:.9rem}
+.footer{text-align:center;padding:18px;font-size:.78rem;color:var(--ink3)}
+@media(max-width:1060px){.app{grid-template-columns:1fr}}
+@media(max-width:660px){.topbar{padding:10px 14px}.tb-kpi{display:none}}
+.fullscreen .side,.fullscreen .footer{display:none!important}
+.fullscreen .app{grid-template-columns:1fr}
+
+/* ── SYNC STATUS ── */
+.sync-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;font-size:.8rem;font-weight:700;margin-bottom:10px}
+.sync-bar.ok{background:var(--green-l);color:#007a40;border:1px solid #a0e8c8}
+.sync-bar.err{background:#fff0f0;color:#c0392b;border:1px solid #ffb0b0}
+.sync-bar.loading{background:var(--blue-l);color:var(--blue);border:1px solid #b0ceff}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="tb-brand">
+    <div class="tb-ico">📅</div>
+    <div>
+      <div class="tb-name" id="officeName">ตารางนัดหมาย</div>
+      <div class="tb-sub" id="officeSubName">หน่วยงาน</div>
+    </div>
+  </div>
+  <div class="tb-btns">
+    <button class="tbtn solid" onclick="openForm()">+ เพิ่มรายการ</button>
+    <button class="tbtn" onclick="openSheetModal()">⚙️ Sheet</button>
+    <button class="tbtn solid" id="fsBtn">⛶</button>
+  </div>
+</nav>
+
+<!-- APP -->
+<div class="app">
+<div class="main">
+
+  <!-- TODAY -->
+  <div class="today-panel">
+    <div class="today-top">
+      <div class="today-title"><div class="live-dot"></div>รายการวันนี้</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="today-date" id="todayDt"></div>
+        <div style="display:flex;gap:5px">
+          <button class="tbtn" id="vTLBtn" onclick="sv('tl')" style="padding:5px 12px;font-size:.78rem">📅 Timeline</button>
+          <button class="tbtn" id="vTBBtn" onclick="sv('tb')" style="padding:5px 12px;font-size:.78rem">📊 ตาราง</button>
+        </div>
+      </div>
+    </div>
+    <div class="today-body" id="todayBody"></div>
+  </div>
+
+  <!-- TOMORROW -->
+  <div class="tmr-panel">
+    <div class="tmr-top">
+      <span style="font-size:18px">📅</span>
+      <div class="tmr-title" id="tmrLbl">พรุ่งนี้</div>
+    </div>
+    <div style="padding:12px 16px 16px">
+      <div class="tl"><div class="tl-line"></div><div id="tmrBody"></div></div>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="fbar" id="filterBarEl">
+    <input id="srch" placeholder="🔍 ค้นหา..." autocomplete="off"/>
+    <select id="fTyp"><option value="">ทุกประเภท</option><option value="ประชุม">ประชุม</option><option value="กิจกรรม">กิจกรรม</option><option value="นัดหมาย">นัดหมาย</option></select>
+    <input id="fDate" type="date"/>
+    <div class="vtgl">
+      <button class="vbtn on" id="vTL2" onclick="sv('tl')">📅 ทั้งหมด</button>
+      <button class="vbtn" id="vTB2" onclick="sv('tb')">📊 ตาราง</button>
+    </div>
+  </div>
+
+  <!-- SYNC STATUS -->
+  <div id="syncStatus" class="hidden"></div>
+
+  <!-- TIMELINE ALL -->
+  <div id="tlSec">
+    <div class="card">
+      <div class="ch"><div class="ch-ico" style="background:#f0ecff">🕐</div><div class="ch-title">รายการทั้งหมด — Timeline</div></div>
+      <div class="cb" style="padding-top:8px">
+        <div class="tl"><div class="tl-line"></div><div id="tlBody"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div id="tbSec" class="hidden">
+    <div class="tbl-wrap">
+      <div style="padding:12px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:10px">
+        <button class="btn btn-p btn-sm" onclick="sv('tl')">← กลับ Timeline</button>
+        <span style="font-family:'Kanit',sans-serif;font-weight:700;font-size:.9rem">📊 ตารางรายการทั้งหมด</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>วันที่</th><th>เวลา</th><th>หัวข้อ</th><th>ประเภท</th>
+          <th>กลุ่มงาน</th><th>ผู้รับผิดชอบ</th><th>สถานที่</th>
+          <th>จัดการ</th>
+        </tr></thead>
+        <tbody id="tbBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- SIDEBAR -->
+<div class="side">
+
+
+  <!-- MINI CALENDAR -->
+  <div class="card cal-panel">
+    <div class="ch" style="background:linear-gradient(135deg,#ffc200,#ff9f00);border:none">
+      <div class="ch-ico" style="background:rgba(255,255,255,.3)">📆</div>
+      <div class="ch-title" style="color:#3a2000">ปฏิทิน</div>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-title" id="calTitle"></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+</div><!-- /side -->
+</div><!-- /app -->
+
+      <div id="sb2" class="hidden">
+        <div class="fw">
+          <div class="ff"><label>Apps Script URL</label><input id="gsUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"/></div>
+          <div class="ff"><label>Sheet ID</label><input id="gsId" placeholder="จาก URL ของ Sheet: /d/[ID]/edit"/></div>
+          <div class="ff"><label>Sheet Tab (gid) — ปกติ = 0</label><input id="gsGid" placeholder="0" value="0"/></div>
+          <div class="brow">
+            <button onclick="saveSheetCfg()" class="btn btn-g btn-sm">💾 บันทึก</button>
+            <button onclick="syncSheet()" class="btn btn-p btn-sm" id="syncBtn">🔄 ดึงข้อมูล</button>
+          </div>
+        </div>
+      </div>
+      <div id="syncMsg" style="font-size:.75rem;margin-top:6px;text-align:center"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- FORM MODAL -->
+<div class="ov hidden" id="formModal">
+<div class="modal">
+  <div class="mh"><div class="mt" id="formTitle">✏️ เพิ่มรายการใหม่</div><button class="mc" onclick="closeForm()">✕</button></div>
+  <div class="mb">
+    <div class="fw">
+      <div class="ff"><label>หัวข้อ *</label><input id="fTit" placeholder="ชื่อรายการ"/></div>
+      <div class="ff" id="fGrpWrap"><label>กลุ่มงาน</label><select id="fGrpF"></select></div>
+      <div class="fr">
+        <div class="ff"><label>ประเภท</label>
+          <select id="fTypF"><option value="ประชุม">ประชุม</option><option value="กิจกรรม">กิจกรรม</option><option value="นัดหมาย">นัดหมาย</option></select>
+        </div>
+        <div class="ff"><label>ความสำคัญ</label>
+          <select id="fPri"><option value="ปกติ">ปกติ</option><option value="เร่งด่วน">เร่งด่วน</option></select>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="ff"><label>วันที่ *</label><input id="fDat" type="date"/></div>
+        <div class="ff"><label>ผู้รับผิดชอบ</label><input id="fOwn" placeholder="ชื่อ"/></div>
+      </div>
+      <div class="fr">
+        <div class="ff"><label>เวลาเริ่ม</label><input id="fSt" type="time"/></div>
+        <div class="ff"><label>เวลาสิ้นสุด</label><input id="fEn" type="time"/></div>
+      </div>
+      <div class="ff"><label>สถานที่</label><input id="fLoc" placeholder="ห้องประชุม / ออนไลน์"/></div>
+      <div class="ff"><label>หมายเหตุ</label><textarea id="fNot" placeholder="รายละเอียด"></textarea></div>
+      <div class="brow">
+        <button class="btn btn-g" id="saveBtn">💾 บันทึก</button>
+        <button class="btn btn-ghost" onclick="resetF()">ล้าง</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+  </div>
+</div>
+</div>
+
+
+<!-- GROUP MODAL -->
+<div class="ov hidden" id="grpModal">
+<div class="modal">
+  <div class="mh"><div class="mt">👥 จัดการกลุ่มงาน</div><button class="mc" id="closeGrpModal">✕</button></div>
+  <div class="mb">
+    <div id="grpListEl"></div>
+    <hr style="border:none;border-top:1.5px dashed var(--border);margin:12px 0"/>
+    <div style="font-size:.75rem;font-weight:800;color:var(--ink3);text-transform:uppercase;margin-bottom:8px" id="grpFT">➕ เพิ่มกลุ่มงาน</div>
+    <div class="fw">
+      <div class="ff"><label>ชื่อกลุ่มงาน *</label><input id="gNam" placeholder="ชื่อกลุ่มงาน"/></div>
+      <div class="brow">
+        <button class="btn btn-g btn-sm" id="saveGBtn">💾 บันทึก</button>
+        <button class="btn btn-ghost btn-sm" id="resetGBtn">ล้าง</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SHEET SETTINGS MODAL -->
+<div class="ov hidden" id="sheetModal">
+<div class="modal">
+  <div class="mh"><div class="mt">🔗 ตั้งค่า Google Sheets</div><button class="mc" onclick="$('sheetModal').classList.add('hidden')">✕</button></div>
+  <div class="mb">
+    <div class="sheet-box" style="margin-top:0">
+      <div class="step-tabs">
+        <button class="stab on" id="st1" onclick="showStep(1)">① สร้าง Script</button>
+        <button class="stab" id="st2" onclick="showStep(2)">② ตั้งค่า URL</button>
+      </div>
+      <div id="sb1">
+        <div style="font-size:.74rem;color:#1a7a50;line-height:1.7;background:#e8fff4;border-radius:8px;padding:10px;margin-bottom:8px">
+          <b>วิธีสร้าง Apps Script Proxy:</b><br>
+          1. Google Sheet → <b>Extensions → Apps Script</b><br>
+          2. ลบโค้ดเดิม → วาง code.gs<br>
+          3. <b>Deploy → New deployment → Web app</b><br>
+          4. Execute as: <b>Me</b> · Access: <b>Anyone</b><br>
+          5. Copy URL → ไปใส่ขั้นตอน ②
+        </div>
+      </div>
+      <div id="sb2" class="hidden">
+        <div class="fw" style="gap:8px">
+          <div class="ff"><label>Apps Script URL</label><input id="gsUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"/></div>
+          <div class="ff"><label>Sheet ID</label><input id="gsId" placeholder="จาก URL ของ Sheet: /d/[ID]/edit"/></div>
+          <div class="ff"><label>gid (ปกติ = 0)</label><input id="gsGid" placeholder="0" value="0"/></div>
+          <div class="brow">
+            <button onclick="saveSheetCfg()" class="btn btn-g btn-sm">💾 บันทึก</button>
+            <button onclick="syncSheet(false)" class="btn btn-p btn-sm" id="syncBtn">🔄 ดึงข้อมูล</button>
+          </div>
+        </div>
+        <div id="syncMsg" style="font-size:.75rem;margin-top:6px;text-align:center"></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;background:#fff0f0;border:1.5px solid #ffb0b0;border-radius:10px;padding:10px;font-size:.78rem;color:#c0392b">
+      🗑 <button onclick="if(confirm('ล้างข้อมูลทั้งหมด?')){localStorage.clear();location.reload()}" style="background:#f43f5e;color:#fff;border:none;border-radius:5px;padding:2px 10px;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer">ล้างข้อมูล / รีเซ็ต</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// 🎨 CONFIG — แก้ไขได้ที่นี่
+// ══════════════════════════════════════════════
+const CONFIG = {
+  officeName:    "Dashboard ตารางนัดหมาย",
+  officeSubName: "สำนักงานส่งเสริมสหกรณ์ กทม. พื้นที่ 1",
+  // superAdminPin ไม่ใช้แล้ว (ไม่มีระบบ login)
+  syncEveryMin:  5,
+  // ── ตั้งค่า Google Sheet ที่นี่เลย (ไม่ต้องให้ user กรอกเอง) ──
+  defaultGsUrl:  "",   // ← วาง Apps Script URL ตรงนี้
+  defaultGsId:   "",   // ← วาง Sheet ID ตรงนี้
+  defaultGsGid:  "0",
+  defaultGroups: [
+    { name:"กลุ่มอำนวยการ" },
+    { name:"กลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์" },
+    { name:"กลุ่มตรวจการสหกรณ์" },
+    { name:"กลุ่มส่งเสริมสหกรณ์ 1" },
+    { name:"กลุ่มส่งเสริมสหกรณ์ 2" },
+  ],
+};
+// ══════════════════════════════════════════════
+
+
+
+
+const SK="sch-v6",GK="grp-v6";
+let G=[],D={items:[],eid:null,egrp:null};
+
+// ── ใช้งานภายใน ไม่มีระบบ login ──
+function isAd(){return true}
+function isSA(){return true}
+function canEd(){return true}
+const $=id=>document.getElementById(id);
+
+// ── ทุกคนแก้ไขได้เลย ไม่ต้อง login ──
+
+// ── BADGE BUILDERS (pure inline, no class conflicts) ──
+const B={
+  type(t){ const m={ประชุม:["#2979ff","ประชุม"],กิจกรรม:["#00c98a","กิจกรรม"],นัดหมาย:["#8b5cf6","นัดหมาย"]};const[c,n]=m[t]||["#8b5cf6",t];return`<span style="display:inline-block;background:${c};color:#fff;font-size:.76rem;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap">${esc(n)}</span>`},
+  urgent(){ return`<span style="display:inline-block;background:#ff6b2b;color:#fff;font-size:.76rem;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap">เร่งด่วน</span>`},
+  live(){   return`<span style="display:inline-block;background:#00c98a;color:#fff;font-size:.76rem;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap">● LIVE</span>`},
+};
+
+function evColor(type){ return type==="ประชุม"?"c-blue":type==="กิจกรรม"?"c-green":"c-purple" }
+
+// ── UTILS ──
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function ds(n=0){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function thd(s){if(!s)return"-";return new Date(s+"T00:00").toLocaleDateString("th-TH",{year:"numeric",month:"short",day:"numeric"})}
+function thdS(s){if(!s)return"-";return new Date(s+"T00:00").toLocaleDateString("th-TH",{month:"short",day:"numeric"})}
+function ts(i){return new Date(`${i.date}T${i.startTime||"00:00"}`).getTime()}
+function te(i){return new Date(`${i.date}T${i.endTime||i.startTime||"23:59"}`).getTime()}
+function nP(p){return String(p||"").includes("เร่งด่วน")?"เร่งด่วน":"ปกติ"}
+function nT(t){const s=String(t||"");return s.includes("กิจกรรม")?"กิจกรรม":s.includes("นัดหมาย")?"นัดหมาย":"ประชุม"}
+function fixDate(d){
+  if(!d) return "";
+  const s = String(d).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // กรณี "Sat Dec 30 1899..." หรือ Date string ทั่วไป
+  const dt = new Date(s);
+  if(!isNaN(dt) && dt.getFullYear() > 1900){
+    return dt.getFullYear()+"-"+("0"+(dt.getMonth()+1)).slice(-2)+"-"+("0"+dt.getDate()).slice(-2);
+  }
+  return s;
+}
+function fixTime(t){
+  if(!t) return "";
+  const s = String(t).trim();
+  if(/^\d{2}:\d{2}$/.test(s)) return s;
+  // กรณี "Sat Dec 30 1899 10:00:00 GMT+0642..."
+  const dt = new Date(s);
+  if(!isNaN(dt)) return ("0"+dt.getHours()).slice(-2)+":"+("0"+dt.getMinutes()).slice(-2);
+  const m = s.match(/(\d{1,2}):(\d{2})/);
+  if(m) return ("0"+m[1]).slice(-2)+":"+m[2];
+  return s;
+}
+
+// ── STORAGE ──
+function loadG(){try{const r=localStorage.getItem(GK);G=r?JSON.parse(r):[...CONFIG.defaultGroups.map(g=>({name:g.name}))];}catch{G=CONFIG.defaultGroups.map(g=>({name:g.name}))}}
+function saveG(){localStorage.setItem(GK,JSON.stringify(G))}
+function loadD(){try{const r=localStorage.getItem(SK);D.items=(r?JSON.parse(r):[]).map(i=>({...i,priority:nP(i.priority),type:nT(i.type)}));localStorage.setItem(SK,JSON.stringify(D.items))}catch{D.items=[]}}
+function saveD(){localStorage.setItem(SK,JSON.stringify(D.items))}
+function loadS(){try{const r=localStorage.getItem(SSK);if(r)D.sess=JSON.parse(r)}catch{}}
+
+// ── INIT ──
+function init(){
+  $("officeName").textContent=CONFIG.officeName;
+  $("officeSubName").textContent=CONFIG.officeSubName;
+  document.title=CONFIG.officeName;
+  loadG();fillSel();loadD();
+  loadSheetCfg(); // อาจ write ค่าจาก CONFIG ลง localStorage
+  $("srch").value="";$("fDate").value="";
+  attachEv();
+  renderAll();buildCal();
+  autoSync();
+  // อ่านค่าใหม่หลัง loadSheetCfg เสร็จแล้ว
+  if(localStorage.getItem("gsUrl")&&localStorage.getItem("gsId")&&CONFIG.syncEveryMin>0){
+    setInterval(()=>syncSheet(true), CONFIG.syncEveryMin*60000);
+  }
+  setInterval(renderAll,60000);
+}
+
+// ── EVENTS ──
+function attachEv(){
+  $("saveBtn").addEventListener("click",saveItem);
+  $("closeGrpModal").addEventListener("click",closeGM);
+  $("grpModal").addEventListener("click",e=>{if(e.target===$("grpModal"))closeGM()});
+  $("saveGBtn").addEventListener("click",saveGrp);
+  $("resetGBtn").addEventListener("click",resetGF);
+  $("fsBtn").addEventListener("click",()=>{document.body.classList.toggle("fullscreen");document.documentElement.requestFullscreen?.().catch(()=>{})});
+  ["srch","fTyp","fDate"].forEach(id=>{$(id).addEventListener("input",renderAll);$(id).addEventListener("change",renderAll)});
+  document.addEventListener("click",e=>{
+    const {edit,del,editGrp,delGrp,showPin,grpFilter}=e.target.dataset;
+    if(edit)startEdit(edit);if(del)delItem(del);
+    if(editGrp)startEG(editGrp);if(delGrp)delGx(delGrp);
+    if(showPin)togglePin(showPin,e.target.dataset.pin);
+    if(grpFilter){renderAll();}
+  });
+}
+
+
+function sv(v){
+  $("tlSec").classList.toggle("hidden",v!=="tl");
+  $("tbSec").classList.toggle("hidden",v!=="tb");
+  const tl=v==="tl",tb=v==="tb";
+  $("vTLBtn").style.background=tl?"rgba(255,255,255,.35)":"rgba(255,255,255,.18)";
+  $("vTBBtn").style.background=tb?"rgba(255,255,255,.35)":"rgba(255,255,255,.18)";
+  $("vTL2").classList.toggle("on",tl);$("vTB2").classList.toggle("on",tb);
+}
+
+function openForm(){$("formModal").classList.remove("hidden")}
+function closeForm(){$("formModal").classList.add("hidden");resetF()} // ✕ ปุ่มปิด → reset
+function setViewer(){D.sess={role:"viewer",grp:"",auth:true};saveS();closeAuth();$("srch").value="";$("fDate").value="";renderAll();autoSync()}
+
+function openSheetModal(){
+  $("sheetModal").classList.remove("hidden");
+  showStep(2);
+  loadSheetCfg();
+}
+function autoSync(){
+  const url=localStorage.getItem("gsUrl"),id=localStorage.getItem("gsId");
+  if(url&&id)syncSheet(true);
+}
+function fillSel(){
+  const h=G.map(g=>`<option value="${esc(g.name)}">${esc(g.name)}</option>`).join("");
+  if($("fGrpF"))$("fGrpF").innerHTML=h;
+}
+
+// ── RENDER ──
+function renderAll(){
+  rKPI();rToday();rTmr();rTL();rTB();
+}
+
+
+function rKPI(){
+  const td=ds(0),now=Date.now(),w7=now+7*86400000;
+}
+function rToday(){
+  const td=ds(0),now=Date.now();
+  $("todayDt").textContent=thd(td);
+  const items=[...D.items].filter(i=>i.date===td).sort((a,b)=>ts(a)-ts(b));
+  if(!items.length){$("todayBody").innerHTML=`<div class="ev-empty">ไม่มีรายการวันนี้ ✨</div>`;return}
+  $("todayBody").innerHTML=items.map(item=>{
+    const live=ts(item)<=now&&te(item)>=now,past=te(item)<now,urg=item.priority==="เร่งด่วน";
+    const col=evColor(item.type);
+    const sub=[item.group,item.owner,item.location].filter(Boolean).join(" · ");
+    return`<div class="ev ${col}${past?" past":""}">
+      <div class="ev-time">${esc(item.startTime||"-")}<br>${esc(item.endTime||"-")}</div>
+      <div><div class="ev-name">${esc(item.title)}</div>${sub?`<div class="ev-sub">📍 ${esc(sub)}</div>`:""}</div>
+      <div class="ev-badges">${live?B.live():""}${B.type(item.type)}${urg?B.urgent():""}</div>
+    </div>`;
+  }).join("");
+}
+function tlCard(item,now){
+  const live=ts(item)<=now&&te(item)>=now,past=te(item)<now,urg=item.priority==="เร่งด่วน";
+  const sub=[item.owner,item.location].filter(Boolean).join(" · ");
+  return`<div class="tl-item"><div class="tl-dot ${live?"live":past?"past":""}"></div>
+    <div class="tl-card${live?" live":past?" past":""}">
+      <div class="tl-top"><div class="tl-name">${esc(item.title)}</div><div class="tl-tags">${live?B.live():""}${B.type(item.type)}${urg?B.urgent():""}</div></div>
+      <div class="tl-meta"><span>🕐 ${esc(item.startTime||"-")} – ${esc(item.endTime||"-")}</span>${item.owner?`<span>👤 ${esc(item.owner)}</span>`:""}${item.location?`<span>📍 ${esc(item.location)}</span>`:""}<span>👥 ${esc(item.group)}</span></div>
+      ${item.notes?`<div class="tl-notes">📝 ${esc(item.notes)}</div>`:""}
+      ${canEd(item)?`<div class="tl-acts"><button class="btn btn-ghost btn-sm" data-edit="${esc(item.id)}">✏️ แก้ไข</button><button class="btn btn-r btn-sm" data-del="${esc(item.id)}">🗑 ลบ</button></div>`:""}
+    </div></div>`;
+}
+function rTmr(){
+  const tmr=ds(1);$("tmrLbl").textContent=`พรุ่งนี้ — ${thd(tmr)}`;
+  const items=[...D.items].filter(i=>i.date===tmr).sort((a,b)=>ts(a)-ts(b));
+  $("tmrBody").innerHTML=items.length?items.map(i=>tlCard(i,Date.now())).join(""):`<div class="empty">ไม่มีรายการพรุ่งนี้ 🌙</div>`;
+}
+function getF(){
+  const q=$("srch").value.trim().toLowerCase(),ft=$("fTyp").value,fd=$("fDate").value;
+  return[...D.items].filter(i=>{
+    if(q&&![i.title,i.location,i.owner,i.notes,i.group].join(" ").toLowerCase().includes(q))return false;
+    if(ft&&i.type!==ft)return false;if(fd&&i.date!==fd)return false;return true;
+  }).sort((a,b)=>ts(a)-ts(b));
+}
+function rTL(){
+  const items=getF(),now=Date.now();
+  if(!items.length){$("tlBody").innerHTML=`<div class="empty">ไม่พบรายการ 🔍</div>`;return}
+  const bd={};items.forEach(i=>{(bd[i.date]=bd[i.date]||[]).push(i)});
+  $("tlBody").innerHTML=Object.entries(bd).map(([date,di])=>{
+    const isT=date===ds(0);
+    return`<div class="day-chip${isT?" today":""}">${isT?"📌 วันนี้":"📅"} ${thd(date)}</div>`+di.map(i=>tlCard(i,now)).join("");
+  }).join("");
+}
+function rTB(){
+  const items=getF(),now=Date.now();
+  if(!items.length){$("tbBody").innerHTML=`<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>`;return}
+  $("tbBody").innerHTML=items.map(item=>{
+    const live=ts(item)<=now&&te(item)>=now,urg=item.priority==="เร่งด่วน";
+    return`<tr class="${live?"rl":""}"><td>${thd(item.date)}</td><td style="white-space:nowrap;font-size:.82rem">${esc(item.startTime||"-")} – ${esc(item.endTime||"-")}</td><td><strong>${esc(item.title)}</strong>${live?" "+B.live():""}${urg?" "+B.urgent():""}</td><td>${B.type(item.type)}</td><td>${esc(item.group)}</td><td>${esc(item.owner||"-")}</td><td>${esc(item.location||"-")}</td><td class="">${canEd(item)?`<div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" data-edit="${esc(item.id)}">✏️</button><button class="btn btn-r btn-sm" data-del="${esc(item.id)}">🗑</button></div>`:`<span style="color:var(--ink3);font-size:.76rem">ดูอย่างเดียว</span>`}</td></tr>`;
+  }).join("");
+}
+function rGrp(){
+  const cls=["gc0","gc1","gc2","gc3","gc4"];
+  const el=$("grpBtns");if(el)el.innerHTML=G.map((g,i)=>`<button class="grp-btn ${cls[i%5]}" data-grp-filter="${esc(g.name)}"><span>${esc(g.name)}</span><span>▶</span></button>`).join("");
+}
+
+// ── CRUD ──
+function saveItem(){
+  if(!isAd()){alert("ต้องเข้าสู่ระบบ Admin ก่อน");return}
+  const isEdit=!!D.eid;
+  const grp=isSA()?($("fGrpF")?$("fGrpF").value:D.sess.grp)||G[0]?.name:D.sess.grp;
+  const item={
+    id:D.eid||crypto.randomUUID(),
+    title:$("fTit").value.trim(),type:nT($("fTypF").value),priority:nP($("fPri").value),
+    date:$("fDat").value,startTime:$("fSt").value,endTime:$("fEn").value,
+    group:grp,owner:$("fOwn").value.trim(),location:$("fLoc").value.trim(),
+    notes:$("fNot").value.trim(),createdAt:Date.now()
+  };
+  if(!item.title||!item.date){alert("กรุณากรอกหัวข้อและวันที่");return}
+  if(isEdit){
+    // compare เป็น string ป้องกัน type mismatch
+    const idx=D.items.findIndex(x=>String(x.id)===String(D.eid));
+    if(idx>-1){
+      item.createdAt=D.items[idx].createdAt;
+      item.fromSheet=D.items[idx].fromSheet; // รักษา flag เดิม
+      D.items[idx]=item;
+    } else {
+      // หาไม่เจอ — บันทึก id เดิมไว้แต่ push ใหม่ (ป้องกันหาย)
+      D.items.push(item);
+    }
+  } else {
+    D.items.push(item);
+  }
+  saveD();
+  $("formModal").classList.add("hidden"); // ปิด modal ก่อน
+  resetF();                                // แล้วค่อย reset (ล้าง D.eid หลัง save แล้ว)
+  renderAll();
+  pushSheet(isEdit?"update":"add",item);
+}
+function startEdit(id){
+  const item=D.items.find(x=>String(x.id)===String(id));
+  if(!item){return}
+  D.eid=item.id; // ใช้ id จาก item โดยตรง ไม่ใช่จาก data-edit attribute
+  $("formTitle").textContent="✏️ แก้ไขรายการ";
+  $("fTit").value=item.title||"";$("fTypF").value=item.type||"ประชุม";$("fPri").value=item.priority||"ปกติ";
+  $("fDat").value=item.date||"";$("fSt").value=item.startTime||"";$("fEn").value=item.endTime||"";
+  $("fOwn").value=item.owner||"";$("fLoc").value=item.location||"";$("fNot").value=item.notes||"";
+  if($("fGrpF"))$("fGrpF").value=item.group||"";
+  openForm();
+}
+function delItem(id){
+  const item=D.items.find(x=>String(x.id)===String(id));
+  if(!item){return}
+  if(!confirm(`ลบ "${item.title}" ?`))return;
+  D.items=D.items.filter(x=>String(x.id)!==String(id));
+  saveD();
+  if(String(D.eid)===String(id))resetF();
+  renderAll();
+  pushSheet("delete",item);
+}
+function resetF(){D.eid=null;$("formTitle").textContent="✏️ เพิ่มรายการใหม่";["fTit","fOwn","fLoc","fNot","fDat","fSt","fEn"].forEach(id=>$(id).value="");$("fTypF").value="ประชุม";$("fPri").value="ปกติ";if($("fGrpF")&&G[0])$("fGrpF").value=G[0].name}
+
+// ── GROUP MGMT ──
+function openGM(){rGL();resetGF();$("grpModal").classList.remove("hidden")}
+function closeGM(){$("grpModal").classList.add("hidden");resetGF()}
+function rGL(){$("grpListEl").innerHTML=G.map(g=>`<div style="display:flex;align-items:center;gap:10px;background:#faf8ff;border:1.5px solid var(--border);border-radius:11px;padding:9px 12px;margin-bottom:7px"><div style="font-weight:700;font-size:.9rem;flex:1">${esc(g.name)}</div><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" data-edit-grp="${esc(g.name)}">✏️</button><button class="btn btn-r btn-sm" data-del-grp="${esc(g.name)}">🗑</button></div></div>`).join("")}
+function togglePin(id,pin){const el=document.getElementById("gp-"+id);if(el)el.textContent=el.textContent.includes("•")?pin:"••••"}
+function startEG(name){const g=G.find(x=>x.name===name);if(!g)return;D.egrp=name;$("gNam").value=g.name;$("grpFT").textContent="✏️ แก้ไข";$("gNam").focus()}
+function delGx(name){if(!confirm(`ลบ "${name}" ?`))return;G=G.filter(g=>g.name!==name);saveG();fillSel();rGL();renderAll()}
+function saveGrp(){
+  const name=$("gNam").value.trim(),pin="";
+  if(!name){alert("กรุณากรอกชื่อ");return}
+  if(D.egrp){
+    const i=G.findIndex(g=>g.name===D.egrp);
+    if(i>-1){
+      const oldName=G[i].name;
+      G[i]={name,pin};
+      // ถ้า session กำลังใช้ group เดิมอยู่ → อัปเดต session ด้วย
+      if(D.sess.grp===oldName){D.sess.grp=name;saveS();}
+      // อัปเดตชื่อ group ใน items ทั้งหมด
+      D.items=D.items.map(it=>it.group===oldName?{...it,group:name}:it);
+      saveD();
+    }
+  } else {
+    if(G.find(g=>g.name===name)){alert("มีชื่อนี้แล้ว");return}
+    G.push({name,pin});
+  }
+  saveG();fillSel();rGL();resetGF();renderAll();
+}
+function resetGF(){D.egrp=null;$("gNam").value="";$("grpFT").textContent="➕ เพิ่มกลุ่มงาน"}
+
+// ── CALENDAR ──
+function buildCal(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth();
+  const months=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  $("calTitle").textContent=`${months[mo]} ${y+543}`;
+  const evDates=new Set(D.items.map(i=>i.date));
+  const days=["S","M","T","W","T","F","S"];
+  let html=days.map(d=>`<div class="cal-h">${d}</div>`).join("");
+  const first=new Date(y,mo,1).getDay();
+  for(let i=0;i<first;i++)html+=`<div class="cal-d empty">x</div>`;
+  const total=new Date(y,mo+1,0).getDate(),td=now.getDate();
+  for(let d=1;d<=total;d++){
+    const dt=`${y}-${("0"+(mo+1)).slice(-2)}-${("0"+d).slice(-2)}`;
+    const isTd=d===td,isSun=new Date(y,mo,d).getDay()===0,hasEv=evDates.has(dt);
+    html+=`<div class="cal-d${isTd?" td":""}${isSun&&!isTd?" sun":""}${hasEv&&!isTd?" hev":""}" onclick="$('fDate').value='${dt}';renderAll()">${d}${hasEv&&!isTd?`<span style="display:block;width:4px;height:4px;background:var(--pink);border-radius:50%;margin:1px auto 0"></span>`:""}</div>`;
+  }
+  $("calGrid").innerHTML=html;
+}
+
+// ── GOOGLE SHEET ──
+function showStep(n){
+  $("sb1").classList.toggle("hidden",n!==1);
+  $("sb2").classList.toggle("hidden",n!==2);
+  $("st1").classList.toggle("on",n===1);$("st2").classList.toggle("on",n===2);
+}
+function copyGs(){const ta=document.querySelector("#sb1 textarea");if(ta){ta.select();document.execCommand("copy");alert("✅ Copy แล้ว!")}}
+function loadSheetCfg(){
+  // ถ้า localStorage ว่าง ให้ใช้ค่าจาก CONFIG (สำหรับคนที่เปิดลิงค์ครั้งแรก)
+  const url=localStorage.getItem("gsUrl")||CONFIG.defaultGsUrl;
+  const id=localStorage.getItem("gsId")||CONFIG.defaultGsId;
+  const gid=localStorage.getItem("gsGid")||CONFIG.defaultGsGid||"0";
+  if(url&&!localStorage.getItem("gsUrl"))localStorage.setItem("gsUrl",url);
+  if(id&&!localStorage.getItem("gsId"))localStorage.setItem("gsId",id);
+  if(!localStorage.getItem("gsGid"))localStorage.setItem("gsGid",gid);
+  const ui=$("gsUrl"),ii=$("gsId"),gi=$("gsGid");
+  if(ui)ui.value=url;if(ii)ii.value=id;if(gi)gi.value=gid;
+}
+function saveSheetCfg(){
+  const url=$("gsUrl")?.value.trim(),id=$("gsId")?.value.trim(),gid=$("gsGid")?.value.trim()||"0";
+  if(!url||!id){alert("กรุณากรอก URL และ Sheet ID");return}
+  localStorage.setItem("gsUrl",url);localStorage.setItem("gsId",id);localStorage.setItem("gsGid",gid);
+  const m=$("syncMsg");if(m){m.textContent="✅ บันทึกแล้ว กด ดึงข้อมูล";m.style.color="#007a40"}
+}
+function setSyncStatus(msg,type="ok"){
+  const el=$("syncStatus");if(!el)return;
+  el.className=`sync-bar ${type}`;el.textContent=msg;el.classList.remove("hidden");
+  if(type==="ok")setTimeout(()=>el.classList.add("hidden"),5000);
+}
+async function syncSheet(silent=false){
+  const url=localStorage.getItem("gsUrl"),id=localStorage.getItem("gsId"),gid=localStorage.getItem("gsGid")||"0";
+  if(!url||!id){if(!silent)alert("❌ ยังไม่ได้ตั้งค่า\nกรุณากรอก URL และ Sheet ID");return}
+  const btn=$("syncBtn"),m=$("syncMsg");
+  if(btn){btn.style.opacity=".6";btn.style.pointerEvents="none"}
+  if(!silent)setSyncStatus("⏳ กำลังดึงข้อมูล...","loading");
+  try{
+    const fetchUrl=`${url}?action=read&id=${encodeURIComponent(id)}&gid=${gid}`;
+    const res=await fetch(fetchUrl);
+    if(!res.ok)throw new Error("HTTP "+res.status);
+    const json=await res.json();
+    if(json.error)throw new Error(json.error);
+    const imported=json.data.map(row=>({
+      id:row.id||crypto.randomUUID(),
+      date:fixDate(row.date),startTime:fixTime(row.startTime),endTime:fixTime(row.endTime),
+      title:row.title||"",type:nT(row.type),priority:nP(row.priority),
+      group:row.group||"",owner:row.owner||"",location:row.location||"",notes:row.notes||"",
+      createdAt:Date.now(),fromSheet:true
+    })).filter(i=>i.date&&i.title);
+    // merge: Sheet เป็น source of truth
+    // local-only items (ยังไม่ push Sheet) ให้คงไว้ ยกเว้นถ้า id ซ้ำกับ Sheet
+    const sheetIds=new Set(imported.map(i=>String(i.id)));
+    const localOnly=D.items.filter(i=>!i.fromSheet&&!sheetIds.has(String(i.id)));
+    D.items=[...localOnly,...imported];
+    saveD();renderAll();buildCal();
+    const msg=`✅ ซิงค์สำเร็จ ${imported.length} รายการ`;
+    setSyncStatus(msg,"ok");
+    if(m){m.textContent=msg;m.style.color="#007a40"}
+  }catch(e){
+    const msg="❌ "+e.message;
+    setSyncStatus(msg,"err");
+    if(m){m.textContent=msg;m.style.color="#c0392b"}
+    if(!silent)alert(msg+"\n\n💡 ตรวจสอบ:\n• Deploy แล้วหรือยัง (Access: Anyone)\n• URL และ Sheet ID ถูกต้อง");
+  }finally{
+    if(btn){btn.style.opacity="";btn.style.pointerEvents=""}
+  }
+}
+async function pushSheet(action,item){
+  const url=localStorage.getItem("gsUrl"),id=localStorage.getItem("gsId");
+  if(!url||!id)return;
+  try{
+    const p=new URLSearchParams({action,id,itemId:item.id||"",date:item.date||"",startTime:item.startTime||"",endTime:item.endTime||"",title:item.title||"",type:item.type||"",priority:item.priority||"",group:item.group||"",owner:item.owner||"",location:item.location||"",notes:item.notes||""});
+    const res=await fetch(`${url}?${p}`);
+    const json=await res.json();
+    if(json.ok)setSyncStatus(`✅ ${action==="delete"?"ลบ":"บันทึก"}ไปยัง Sheet แล้ว`,"ok");
+    else console.warn("Sheet:",json.error);
+  }catch(e){console.warn("pushSheet:",e.message)}
+}
+
+// ── SEED ──
+
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
