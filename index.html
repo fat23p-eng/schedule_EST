@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>📅 ตารางนัดหมาย</title>
+<title>📅 ตารางนัดหมายงาน</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -428,13 +428,13 @@ tr.rl td{background:var(--green-l)}
 // 🎨 CONFIG — แก้ไขได้ที่นี่
 // ══════════════════════════════════════════════
 const CONFIG = {
-  officeName:    "Dashboard ตารางนัดหมาย",
-  officeSubName: "สำนักงานส่งเสริมสหกรณ์ กทม. พื้นที่ 1",
+  officeName:    "ตารางนัดหมายงาน",
+  officeSubName: "กลุ่มจัดตั้งและส่งเสริมสหกรณ์ สสพ.1",
   // superAdminPin ไม่ใช้แล้ว (ไม่มีระบบ login)
   syncEveryMin:  5,
   // ── ตั้งค่า Google Sheet ที่นี่เลย (ไม่ต้องให้ user กรอกเอง) ──
-  defaultGsUrl:  "",   // ← วาง Apps Script URL ตรงนี้
-  defaultGsId:   "",   // ← วาง Sheet ID ตรงนี้
+  defaultGsUrl:  "https://script.google.com/macros/s/AKfycbyepQFtRMkvYoX2hVNZOXU-OkuUDhXv5RPkDWlBy5qdMiZVZGUFS_wK1cYtyiCehpts/exec",   // ← วาง Apps Script URL ตรงนี้
+  defaultGsId:   "1LiXxRONhinP6O2cz42Si5V3B_yTA0U_25CvuwaHydjQ",   // ← วาง Sheet ID ตรงนี้
   defaultGsGid:  "0",
   defaultGroups: [
     { name:"กลุ่มอำนวยการ" },
